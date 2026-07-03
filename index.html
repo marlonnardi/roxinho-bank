@@ -1,0 +1,2402 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roxinho Bank</title>
+  <style>
+    :root {
+      --purple: #820ad1;
+      --purple-2: #5f05a8;
+      --purple-3: #9b35df;
+      --ink: #191520;
+      --muted: #6f6a76;
+      --line: #ece8f1;
+      --surface: #f7f5f9;
+      --card: #ffffff;
+      --green: #118c4f;
+      --red: #d12f2f;
+      --amber: #b66b00;
+      --shadow: 0 18px 42px rgba(23, 10, 34, .14);
+      --ease: cubic-bezier(.22, .78, .2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 12%, rgba(130, 10, 209, .18), transparent 28%),
+        #0f0d13;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .device {
+      width: 390px;
+      height: 844px;
+      position: relative;
+      border: 8px solid #20202a;
+      border-radius: 44px;
+      background: #111118;
+      box-shadow:
+        0 36px 90px rgba(0, 0, 0, .62),
+        inset 0 0 0 1px rgba(255, 255, 255, .08);
+      overflow: hidden;
+    }
+
+    .device::before {
+      content: "";
+      position: absolute;
+      z-index: 10;
+      top: 10px;
+      left: 50%;
+      width: 108px;
+      height: 25px;
+      transform: translateX(-50%);
+      border-radius: 0 0 17px 17px;
+      background: #16161d;
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .06);
+    }
+
+    .app {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      border-radius: 36px;
+      background: var(--surface);
+    }
+
+    .status-bar {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: relative;
+      z-index: 8;
+      background: var(--purple);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .signal {
+      display: grid;
+      grid-template-columns: repeat(4, 3px);
+      align-items: end;
+      gap: 2px;
+      height: 12px;
+    }
+
+    .signal i {
+      display: block;
+      width: 3px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .signal i:nth-child(1) { height: 4px; opacity: .55; }
+    .signal i:nth-child(2) { height: 7px; opacity: .72; }
+    .signal i:nth-child(3) { height: 10px; opacity: .9; }
+    .signal i:nth-child(4) { height: 12px; }
+
+    .battery {
+      width: 24px;
+      height: 12px;
+      position: relative;
+      border: 1.6px solid currentColor;
+      border-radius: 4px;
+    }
+
+    .battery::before {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 3px;
+      width: 2px;
+      height: 5px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .battery::after {
+      content: "";
+      position: absolute;
+      inset: 2px 6px 2px 2px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+
+    .view {
+      position: absolute;
+      inset: 40px 0 76px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .screen {
+      height: 100%;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 0 20px 24px;
+      scrollbar-width: none;
+      will-change: opacity, transform;
+      animation: screenIn .28s var(--ease) both;
+    }
+
+    .screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    .screen[data-dir="back"] {
+      animation-name: screenBackIn;
+    }
+
+    @keyframes screenIn {
+      from { opacity: .4; transform: translate3d(22px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    @keyframes screenBackIn {
+      from { opacity: .4; transform: translate3d(-18px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    .home-screen {
+      padding: 0 0 24px;
+      background: linear-gradient(var(--purple) 0 216px, var(--surface) 216px);
+    }
+
+    .home-content {
+      padding: 0 20px;
+    }
+
+    .home-top {
+      color: #fff;
+      padding: 12px 20px 22px;
+    }
+
+    .home-top-row,
+    .screen-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .16);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .14);
+      color: inherit;
+      transition: transform .18s var(--ease), background .18s var(--ease);
+    }
+
+    .icon-button:active,
+    .action-circle:active,
+    .primary-button:active,
+    .secondary-button:active,
+    .tab-button:active,
+    .key-button:active {
+      transform: scale(.96);
+    }
+
+    .icon-button.light {
+      background: #fff;
+      color: var(--purple);
+      box-shadow: 0 7px 18px rgba(20, 8, 28, .08);
+    }
+
+    .greeting {
+      margin: 18px 0 0;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .balance-card {
+      margin-top: 18px;
+      padding: 20px;
+      border-radius: 24px;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .balance-row {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .balance-value {
+      margin: 0;
+      color: var(--ink);
+      font-size: 30px;
+      font-weight: 850;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .hidden-money {
+      display: inline-block;
+      min-width: 122px;
+      letter-spacing: 4px;
+    }
+
+    .fine {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .quick-action {
+      min-width: 0;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      color: var(--ink);
+      background: transparent;
+    }
+
+    .action-circle {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--purple);
+      box-shadow: 0 8px 20px rgba(31, 16, 43, .08);
+      transition: transform .18s var(--ease), box-shadow .18s var(--ease);
+    }
+
+    .quick-action span {
+      max-width: 76px;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .section-title {
+      margin: 22px 0 12px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .card {
+      border: 1px solid rgba(132, 104, 151, .11);
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(42, 26, 57, .06);
+    }
+
+    .credit-summary {
+      width: 100%;
+      display: block;
+      padding: 18px;
+      text-align: left;
+      color: var(--ink);
+      transition: transform .18s var(--ease);
+    }
+
+    .credit-summary:active {
+      transform: scale(.985);
+    }
+
+    .card-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .invoice-value {
+      margin: 0 0 5px;
+      color: var(--purple);
+      font-size: 23px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .progress {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #ece6f2;
+    }
+
+    .progress i {
+      display: block;
+      width: var(--value, 0%);
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--purple), #11a36a);
+      transition: width .38s var(--ease);
+    }
+
+    .shortcuts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .shortcut {
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 15px;
+      border-radius: 20px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 0 8px 18px rgba(42, 26, 57, .06);
+      transition: transform .18s var(--ease);
+    }
+
+    .shortcut svg {
+      color: var(--purple);
+    }
+
+    .shortcut span {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.2;
+    }
+
+    .shortcut:active {
+      transform: scale(.975);
+    }
+
+    .tab-bar {
+      position: absolute;
+      z-index: 9;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 76px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 8px 14px 12px;
+      border-top: 1px solid rgba(118, 96, 132, .14);
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(18px);
+    }
+
+    .tab-button {
+      display: grid;
+      place-items: center;
+      gap: 4px;
+      border-radius: 18px;
+      background: transparent;
+      color: #8a8391;
+      transition: color .18s var(--ease), background .18s var(--ease), transform .18s var(--ease);
+    }
+
+    .tab-button span {
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .tab-button.active {
+      background: #f1e5f8;
+      color: var(--purple);
+    }
+
+    .screen-header {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      margin: 0 -20px;
+      padding: 12px 20px 14px;
+      background: linear-gradient(rgba(247, 245, 249, .98), rgba(247, 245, 249, .9));
+      backdrop-filter: blur(16px);
+    }
+
+    .screen-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .back-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 7px 16px rgba(27, 16, 38, .07);
+    }
+
+    .screen-subtitle {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .ghost-button {
+      min-height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border-radius: 18px;
+      font-weight: 900;
+      letter-spacing: 0;
+      transition: transform .18s var(--ease), background .18s var(--ease), color .18s var(--ease), opacity .18s var(--ease);
+    }
+
+    .primary-button {
+      width: 100%;
+      background: var(--purple);
+      color: #fff;
+      box-shadow: 0 11px 22px rgba(130, 10, 209, .22);
+    }
+
+    .secondary-button {
+      width: 100%;
+      background: #fff;
+      color: var(--purple);
+      border: 1px solid #eadff2;
+    }
+
+    .ghost-button {
+      background: transparent;
+      color: var(--purple);
+      min-height: 42px;
+      padding: 0 10px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .pix-menu {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .pix-option {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 22px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 0 8px 18px rgba(42, 26, 57, .06);
+      transition: transform .18s var(--ease);
+    }
+
+    .pix-option:active {
+      transform: scale(.985);
+    }
+
+    .pix-option-icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 16px;
+      background: #f2e4fb;
+      color: var(--purple);
+    }
+
+    .pix-option strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 15px;
+    }
+
+    .pix-option span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .field-card {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(42, 26, 57, .06);
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .input {
+      width: 100%;
+      height: 52px;
+      padding: 0 14px;
+      border: 1px solid #ded4e7;
+      border-radius: 16px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+      font-size: 16px;
+      transition: border .18s var(--ease), box-shadow .18s var(--ease);
+    }
+
+    .input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 4px rgba(130, 10, 209, .12);
+    }
+
+    .input-error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(209, 47, 47, .1);
+    }
+
+    .helper {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .error-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff1f1;
+      color: #8e1f1f;
+      font-size: 13px;
+      font-weight: 750;
+      line-height: 1.35;
+      animation: shake .26s var(--ease);
+    }
+
+    .info-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 13px;
+      border-radius: 18px;
+      background: #f2e4fb;
+      color: #4d087c;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .amount-panel {
+      margin-top: 18px;
+      padding: 22px 18px 18px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .amount-label {
+      margin: 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .amount-display {
+      margin: 10px 0 8px;
+      color: var(--ink);
+      text-align: center;
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .available {
+      margin: 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .key-button {
+      height: 58px;
+      border-radius: 18px;
+      background: #f4eef8;
+      color: var(--ink);
+      font-size: 24px;
+      font-weight: 850;
+      transition: transform .16s var(--ease), background .16s var(--ease);
+    }
+
+    .key-button.utility {
+      color: var(--purple);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .confirm-card {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .confirm-recipient {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .recipient-avatar {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #f2e4fb;
+      color: var(--purple);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .detail-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .detail-row span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .detail-row strong {
+      max-width: 190px;
+      color: var(--ink);
+      text-align: right;
+      font-size: 14px;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .success-wrap {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 18px;
+      text-align: center;
+    }
+
+    .success-mark {
+      width: 112px;
+      height: 112px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 22px;
+      border-radius: 50%;
+      background: #e7f7ef;
+      color: var(--green);
+      animation: pop .48s var(--ease) both;
+    }
+
+    .success-mark svg path {
+      stroke-dasharray: 74;
+      stroke-dashoffset: 74;
+      animation: checkDraw .62s .18s var(--ease) forwards;
+    }
+
+    @keyframes pop {
+      from { transform: scale(.78); opacity: .3; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes checkDraw {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .success-title {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .success-text {
+      margin: 10px auto 22px;
+      max-width: 280px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-top: 12px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+    }
+
+    .search-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 14px 0 44px;
+      border: 1px solid #e3dbe8;
+      border-radius: 18px;
+      outline: none;
+      background: #fff;
+      color: var(--ink);
+      transition: border .18s var(--ease), box-shadow .18s var(--ease);
+    }
+
+    .search-input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 4px rgba(130, 10, 209, .1);
+    }
+
+    .group-title {
+      margin: 22px 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .transaction-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .transaction {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 13px;
+      border-radius: 20px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 0 6px 15px rgba(42, 26, 57, .055);
+    }
+
+    .transaction-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: #f4eef8;
+      color: var(--purple);
+    }
+
+    .transaction h3 {
+      margin: 0 0 4px;
+      font-size: 14px;
+      font-weight: 850;
+      line-height: 1.18;
+    }
+
+    .transaction p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .transaction-value {
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .transaction-value.income {
+      color: var(--green);
+    }
+
+    .empty-state {
+      margin-top: 24px;
+      padding: 28px 18px;
+      border-radius: 22px;
+      background: #fff;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .card-stage {
+      display: block;
+      perspective: 1200px;
+      margin-top: 18px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      text-align: left;
+    }
+
+    .virtual-card {
+      width: 100%;
+      height: 218px;
+      position: relative;
+      border-radius: 28px;
+      background: transparent;
+      color: #fff;
+      transform-style: preserve-3d;
+      transition: transform .55s var(--ease), filter .3s var(--ease), opacity .3s var(--ease);
+      box-shadow: 0 22px 42px rgba(58, 9, 96, .25);
+    }
+
+    .virtual-card.revealed {
+      transform: rotateY(180deg);
+    }
+
+    .virtual-card.locked {
+      filter: grayscale(1);
+      opacity: .72;
+    }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 22px;
+      overflow: hidden;
+      border-radius: inherit;
+      backface-visibility: hidden;
+      background:
+        linear-gradient(135deg, #2d073f 0%, var(--purple) 52%, #aa54e4 100%);
+    }
+
+    .card-face::after {
+      content: "";
+      position: absolute;
+      width: 210px;
+      height: 210px;
+      right: -78px;
+      top: -74px;
+      border-radius: 50%;
+      border: 34px solid rgba(255, 255, 255, .13);
+    }
+
+    .card-face.back {
+      transform: rotateY(180deg);
+      background:
+        linear-gradient(135deg, #2e063f 0%, #6406ad 52%, #8b1bd2 100%);
+    }
+
+    .brand-row,
+    .card-number-row,
+    .card-meta-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .chip {
+      width: 42px;
+      height: 32px;
+      border-radius: 9px;
+      background:
+        linear-gradient(135deg, #ffe8a8, #d2a33a);
+      box-shadow: inset 0 0 0 1px rgba(93, 64, 15, .2);
+    }
+
+    .card-number {
+      font-size: 20px;
+      font-weight: 850;
+      letter-spacing: .08em;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      text-transform: uppercase;
+      opacity: .78;
+    }
+
+    .card-holder {
+      margin-top: 4px;
+      font-size: 14px;
+      font-weight: 850;
+      letter-spacing: .02em;
+    }
+
+    .lock-pill {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(28, 23, 32, .34);
+      color: #fff;
+      font-weight: 900;
+      backdrop-filter: blur(2px);
+    }
+
+    .virtual-card.locked .lock-pill {
+      display: grid;
+    }
+
+    .card-help {
+      margin: 12px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .toggle-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(42, 26, 57, .06);
+    }
+
+    .toggle-title {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .toggle-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .switch {
+      width: 56px;
+      height: 32px;
+      position: relative;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: #d9d1df;
+      transition: background .2s var(--ease);
+    }
+
+    .switch::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, .16);
+      transition: transform .24s var(--ease);
+    }
+
+    .switch.on {
+      background: var(--purple);
+    }
+
+    .switch.on::before {
+      transform: translateX(24px);
+    }
+
+    .invoice-panel {
+      margin-top: 18px;
+      padding: 17px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(42, 26, 57, .06);
+    }
+
+    .invoice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .metric {
+      padding: 13px;
+      border-radius: 16px;
+      background: #f8f3fb;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .toast-area {
+      position: absolute;
+      z-index: 30;
+      left: 18px;
+      right: 18px;
+      bottom: 92px;
+      display: grid;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 14px;
+      border-radius: 18px;
+      background: rgba(28, 24, 33, .94);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, .26);
+      font-size: 13px;
+      line-height: 1.35;
+      animation: toastIn .24s var(--ease) both;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loader {
+      position: absolute;
+      z-index: 20;
+      inset: 40px 0 76px;
+      display: none;
+      padding: 18px 20px;
+      background: rgba(247, 245, 249, .78);
+      backdrop-filter: blur(10px);
+    }
+
+    .loader.show {
+      display: block;
+      animation: fadeIn .15s linear both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .skeleton {
+      overflow: hidden;
+      position: relative;
+      border-radius: 18px;
+      background: #ebe4ef;
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .56), transparent);
+      animation: shimmer 1.1s infinite;
+    }
+
+    @keyframes shimmer {
+      to { transform: translateX(100%); }
+    }
+
+    .loader-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .loader-row {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      z-index: 40;
+      inset: 0;
+      display: grid;
+      place-items: end center;
+      padding: 18px;
+      background: rgba(12, 10, 15, .44);
+      animation: fadeIn .18s linear both;
+    }
+
+    .modal {
+      width: 100%;
+      max-height: 78%;
+      overflow-y: auto;
+      padding: 18px;
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, .28);
+      animation: modalUp .28s var(--ease) both;
+    }
+
+    @keyframes modalUp {
+      from { transform: translateY(22px); opacity: .4; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .receipt-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .receipt-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .receipt-badge {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #e7f7ef;
+      color: var(--green);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, .45);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .72s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-20 { margin-top: 20px; }
+    .full { width: 100%; }
+
+    @media (max-width: 430px), (max-height: 880px) {
+      .device {
+        transform: scale(min(calc((100vw - 18px) / 390), calc((100vh - 18px) / 844)));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="device" role="application" aria-label="Demo do app Roxinho Bank em celular">
+    <div class="app">
+      <div class="status-bar">
+        <span id="clock">9:41</span>
+        <div class="status-icons" aria-hidden="true">
+          <span class="signal"><i></i><i></i><i></i><i></i></span>
+          <span>5G</span>
+          <span class="battery"></span>
+        </div>
+      </div>
+      <main id="view" class="view"></main>
+      <div id="loader" class="loader" aria-hidden="true">
+        <div class="loader-stack">
+          <div class="skeleton" style="width: 54%; height: 28px;"></div>
+          <div class="skeleton" style="width: 100%; height: 116px;"></div>
+          <div class="loader-row">
+            <div class="skeleton" style="width: 48px; height: 48px; border-radius: 16px;"></div>
+            <div class="skeleton" style="height: 48px;"></div>
+          </div>
+          <div class="loader-row">
+            <div class="skeleton" style="width: 48px; height: 48px; border-radius: 16px;"></div>
+            <div class="skeleton" style="height: 48px;"></div>
+          </div>
+          <div class="skeleton" style="width: 78%; height: 18px;"></div>
+        </div>
+      </div>
+      <nav id="tabBar" class="tab-bar" aria-label="Navegação principal"></nav>
+      <div id="toastArea" class="toast-area" aria-live="polite"></div>
+      <div id="modalRoot"></div>
+    </div>
+  </div>
+
+  <script>
+    const money = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+    const shortDateFormatter = new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "long"
+    });
+
+    const fullDateFormatter = new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    });
+
+    const timeFormatter = new Intl.DateTimeFormat("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    const state = {
+      route: "home",
+      activeTab: "home",
+      direction: "forward",
+      balanceVisible: true,
+      balanceCents: 384752,
+      invoiceCents: 128943,
+      cardLimitCents: 520000,
+      cardRevealed: false,
+      cardLocked: false,
+      search: "",
+      loading: false,
+      user: {
+        name: "Marlon Nardi",
+        firstName: "Marlon"
+      },
+      pix: {
+        key: "",
+        keyError: "",
+        keyType: "",
+        recipient: null,
+        amountCents: 0,
+        amountError: "",
+        submitting: false,
+        receipt: null
+      },
+      transactions: []
+    };
+
+    const seededTransactions = [
+      ["Pix recebido de Ana Clara", "Transferência recebida", "pix-in", 85000, 0, "09:18"],
+      ["iFood", "Almoço no cartão", "food", -6790, 0, "12:46"],
+      ["Uber", "Corrida para Centro", "transport", -2340, 1, "19:22"],
+      ["Mercado Livre", "Compra online", "shopping", -18990, 1, "10:08"],
+      ["Padaria São José", "Débito na conta", "food", -1870, 2, "07:31"],
+      ["Farmácia Pague Menos", "Saúde", "health", -4230, 2, "15:04"],
+      ["Spotify", "Assinatura mensal", "subscription", -2190, 3, "08:11"],
+      ["Posto Ipiranga", "Abastecimento", "transport", -15420, 3, "18:37"],
+      ["Assaí Atacadista", "Mercado", "market", -31248, 4, "16:20"],
+      ["Cinema Kinoplex", "Lazer", "leisure", -4800, 4, "21:52"],
+      ["Salário Falcon Sistemas", "Depósito recebido", "salary", 520000, 5, "06:12"],
+      ["Conta de luz Energisa", "Pagamento de boleto", "bill", -23676, 5, "14:44"],
+      ["Academia Smart Fit", "Plano mensal", "health", -10990, 6, "09:02"],
+      ["Shopee", "Compra online", "shopping", -7999, 7, "13:15"],
+      ["Transferência para João Pedro", "TED enviada", "transfer", -45000, 8, "17:59"]
+    ];
+
+    function seedTransactions() {
+      state.transactions = seededTransactions.map((item, index) => {
+        const [title, subtitle, category, amountCents, daysAgo, hour] = item;
+        const date = relativeDate(daysAgo, hour);
+        return {
+          id: `RB-${String(870000 + index)}`,
+          title,
+          subtitle,
+          category,
+          amountCents,
+          date,
+          merchant: title
+        };
+      }).sort((a, b) => b.date - a.date);
+    }
+
+    function relativeDate(daysAgo, hour) {
+      const date = new Date();
+      const [hh, mm] = hour.split(":").map(Number);
+      date.setDate(date.getDate() - daysAgo);
+      date.setHours(hh, mm, 0, 0);
+      return date;
+    }
+
+    function formatMoney(cents) {
+      return money.format(cents / 100);
+    }
+
+    function formatSigned(cents) {
+      if (cents > 0) return `+ ${formatMoney(cents)}`;
+      return formatMoney(cents);
+    }
+
+    function nowId() {
+      return `RB${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    }
+
+    function icon(name, size = 22) {
+      const common = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"`;
+      const filled = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"`;
+      const icons = {
+        eye: `<svg ${common}><path d="M2.5 12s3.4-6.5 9.5-6.5S21.5 12 21.5 12 18.1 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+        eyeOff: `<svg ${common}><path d="M9.9 4.4A10.6 10.6 0 0 1 12 4.2c6.1 0 9.5 7.8 9.5 7.8a17.4 17.4 0 0 1-2.6 3.8"/><path d="M6.2 6.2C3.8 7.9 2.5 12 2.5 12s3.4 7.8 9.5 7.8a10.9 10.9 0 0 0 5.5-1.6"/><path d="M9.2 9.2a3 3 0 0 0 4.2 4.2"/><path d="m3 3 18 18"/></svg>`,
+        pix: `<svg ${common}><path d="m12 3.2 3.8 3.8a3.2 3.2 0 0 0 4.5 0"/><path d="m12 20.8-3.8-3.8a3.2 3.2 0 0 0-4.5 0"/><path d="m20.8 12-3.8 3.8a3.2 3.2 0 0 0 0 4.5"/><path d="m3.2 12 3.8-3.8a3.2 3.2 0 0 0 0-4.5"/><path d="m8.3 8.3 7.4 7.4"/><path d="m15.7 8.3-7.4 7.4"/></svg>`,
+        barcode: `<svg ${common}><path d="M5 4v16"/><path d="M9 4v16"/><path d="M13 4v16"/><path d="M19 4v16"/><path d="M16 4v16"/></svg>`,
+        send: `<svg ${common}><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>`,
+        phone: `<svg ${common}><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.7.6 2.5a2 2 0 0 1-.4 2.1L8 9.6a16 16 0 0 0 6.4 6.4l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.6.5 2.5.6a2 2 0 0 1 1.7 2Z"/></svg>`,
+        card: `<svg ${common}><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19"/><path d="M7 15h4"/></svg>`,
+        home: `<svg ${common}><path d="m3 10.8 9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9.5 20v-6h5v6"/></svg>`,
+        receipt: `<svg ${common}><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2Z"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>`,
+        chart: `<svg ${common}><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 3-3 3 2 5-7"/></svg>`,
+        lock: `<svg ${common}><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`,
+        unlock: `<svg ${common}><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 7.5-2"/></svg>`,
+        search: `<svg ${common}><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>`,
+        chevron: `<svg ${common}><path d="m9 18 6-6-6-6"/></svg>`,
+        back: `<svg ${common}><path d="m15 18-6-6 6-6"/></svg>`,
+        check: `<svg ${common}><path d="M20 6 9 17l-5-5"/></svg>`,
+        checkCircle: `<svg ${common}><circle cx="12" cy="12" r="9"/><path d="m8 12 2.7 2.7L16.5 9"/></svg>`,
+        alert: `<svg ${common}><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.4 3.5 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.6 3.5a2 2 0 0 0-3.2 0Z"/></svg>`,
+        copy: `<svg ${common}><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg>`,
+        plus: `<svg ${common}><path d="M12 5v14"/><path d="M5 12h14"/></svg>`,
+        calendar: `<svg ${common}><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/></svg>`,
+        refresh: `<svg ${common}><path d="M21 12a9 9 0 0 1-15.5 6.2"/><path d="M3 12A9 9 0 0 1 18.5 5.8"/><path d="M18 2v4h4"/><path d="M6 22v-4H2"/></svg>`,
+        wallet: `<svg ${common}><path d="M19 7V6a2 2 0 0 0-2-2H5a3 3 0 0 0 0 6h15v9H5a3 3 0 0 1-3-3V7"/><path d="M16 14h.01"/></svg>`,
+        shield: `<svg ${common}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>`,
+        gift: `<svg ${common}><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M3 12h18"/><path d="M7.5 8A2.5 2.5 0 1 1 12 6a2.5 2.5 0 1 1 4.5 2"/></svg>`,
+        bag: `<svg ${common}><path d="M6 8h12l-1 13H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>`,
+        fork: `<svg ${common}><path d="M7 2v8"/><path d="M5 2v5a2 2 0 0 0 4 0V2"/><path d="M17 2v20"/><path d="M14 7c0-3 1.2-5 3-5"/></svg>`,
+        car: `<svg ${common}><path d="M6 17h12"/><path d="m5 12 2-5h10l2 5"/><path d="M5 12h14v6H5z"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="16.5" cy="18" r="1.5"/></svg>`,
+        heart: `<svg ${common}><path d="M19.5 12.6 12 20l-7.5-7.4A5 5 0 0 1 12 6a5 5 0 0 1 7.5 6.6Z"/></svg>`,
+        music: `<svg ${common}><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>`,
+        bolt: `<svg ${common}><path d="m13 2-9 12h8l-1 8 9-12h-8l1-8Z"/></svg>`,
+        user: `<svg ${common}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`,
+        qr: `<svg ${common}><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2z"/><path d="M18 14h2v6h-6v-2"/><path d="M14 20h.01"/></svg>`,
+        logo: `<svg ${filled}><path d="M12 2.8c4.6 0 8.4 3.8 8.4 8.4 0 6.1-7.6 9.9-8.1 10.1a.7.7 0 0 1-.6 0c-.5-.2-8.1-4-8.1-10.1C3.6 6.6 7.4 2.8 12 2.8Zm0 3.4a5 5 0 0 0-5 5c0 3.2 3.6 5.7 5 6.5 1.4-.8 5-3.3 5-6.5a5 5 0 0 0-5-5Z"/></svg>`,
+        bell: `<svg ${common}><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M9.5 20a2.8 2.8 0 0 0 5 0"/></svg>`
+      };
+
+      return icons[name] || icons.logo;
+    }
+
+    function updateClock() {
+      document.getElementById("clock").textContent = timeFormatter.format(new Date());
+    }
+
+    function showToast(message, type = "info") {
+      const toastArea = document.getElementById("toastArea");
+      const node = document.createElement("div");
+      node.className = "toast";
+      node.innerHTML = `${type === "success" ? icon("checkCircle", 20) : icon(type === "error" ? "alert" : "logo", 20)}<span>${message}</span>`;
+      toastArea.appendChild(node);
+      window.setTimeout(() => {
+        node.style.opacity = "0";
+        node.style.transform = "translateY(10px)";
+        node.style.transition = "opacity .18s linear, transform .18s var(--ease)";
+      }, 2600);
+      window.setTimeout(() => node.remove(), 2900);
+    }
+
+    function showLoader() {
+      const loader = document.getElementById("loader");
+      loader.classList.add("show");
+    }
+
+    function hideLoader() {
+      document.getElementById("loader").classList.remove("show");
+    }
+
+    function navigate(route, options = {}) {
+      state.direction = options.back ? "back" : "forward";
+      const tabRoutes = ["home", "extract", "card"];
+      if (tabRoutes.includes(route)) {
+        state.activeTab = route;
+      } else if (route.startsWith("pix")) {
+        state.activeTab = "home";
+      }
+
+      showLoader();
+      window.setTimeout(() => {
+        state.route = route;
+        render();
+        hideLoader();
+      }, options.quick ? 80 : 190);
+    }
+
+    function rerender(keepScroll = true) {
+      const current = document.querySelector(".screen");
+      const scrollTop = current ? current.scrollTop : 0;
+      render();
+      if (keepScroll) {
+        const next = document.querySelector(".screen");
+        if (next) next.scrollTop = scrollTop;
+      }
+    }
+
+    function render() {
+      document.getElementById("view").innerHTML = routeTemplate();
+      document.querySelector(".screen")?.setAttribute("data-dir", state.direction);
+      renderTabs();
+      bindEvents();
+    }
+
+    function routeTemplate() {
+      const routes = {
+        home: homeTemplate,
+        extract: extractTemplate,
+        card: cardTemplate,
+        pixHome: pixHomeTemplate,
+        pixKey: pixKeyTemplate,
+        pixAmount: pixAmountTemplate,
+        pixConfirm: pixConfirmTemplate,
+        pixSuccess: pixSuccessTemplate
+      };
+      return routes[state.route] ? routes[state.route]() : homeTemplate();
+    }
+
+    function renderTabs() {
+      const tabs = [
+        ["home", "Início", "home"],
+        ["extract", "Extrato", "receipt"],
+        ["card", "Cartão", "card"]
+      ];
+      document.getElementById("tabBar").innerHTML = tabs.map(([route, label, iconName]) => `
+        <button class="tab-button ${state.activeTab === route ? "active" : ""}" data-nav="${route}" aria-label="${label}">
+          ${icon(iconName, 23)}
+          <span>${label}</span>
+        </button>
+      `).join("");
+    }
+
+    function homeTemplate() {
+      const used = Math.min(100, Math.round((state.invoiceCents / state.cardLimitCents) * 100));
+      return `
+        <section class="screen home-screen">
+          <div class="home-top">
+            <div class="home-top-row">
+              <div class="avatar" aria-hidden="true">MN</div>
+              <button class="icon-button" data-action="notifications" aria-label="Notificações">${icon("bell", 22)}</button>
+            </div>
+            <p class="greeting">Olá, ${state.user.firstName}</p>
+          </div>
+
+          <div class="home-content">
+            <div class="balance-card">
+              <p class="eyebrow">Saldo disponível</p>
+              <div class="balance-row">
+                <h1 class="balance-value">${state.balanceVisible ? formatMoney(state.balanceCents) : '<span class="hidden-money">••••</span>'}</h1>
+                <button class="icon-button light" data-action="toggle-balance" aria-label="${state.balanceVisible ? "Ocultar saldo" : "Mostrar saldo"}">
+                  ${icon(state.balanceVisible ? "eye" : "eyeOff", 22)}
+                </button>
+              </div>
+              <p class="fine">Conta digital ativa. Rendendo automaticamente em dias úteis.</p>
+            </div>
+
+            <div class="quick-actions" aria-label="Ações rápidas">
+              ${quickAction("Pix", "pix", "pix")}
+              ${quickAction("Pagar", "pay", "barcode")}
+              ${quickAction("Transferir", "transfer", "send")}
+              ${quickAction("Recarga", "recharge", "phone")}
+            </div>
+
+            <button class="card credit-summary" data-nav="card" aria-label="Abrir cartão de crédito">
+              <div class="card-topline">
+                <p class="card-title">${icon("card", 21)} Cartão de crédito</p>
+                ${icon("chevron", 20)}
+              </div>
+              <p class="eyebrow">Fatura atual</p>
+              <p class="invoice-value">${formatMoney(state.invoiceCents)}</p>
+              <div class="progress" aria-label="Uso de ${used}% do limite"><i style="--value: ${used}%"></i></div>
+              <p class="fine">Limite disponível: ${formatMoney(state.cardLimitCents - state.invoiceCents)}</p>
+            </button>
+
+            <h2 class="section-title">Atalhos</h2>
+            <div class="shortcuts">
+              ${shortcut("Investimentos", "chart", "invest")}
+              ${shortcut("Guardar dinheiro", "wallet", "vault")}
+              ${shortcut("Seguro celular", "shield", "insurance")}
+              ${shortcut("Benefícios Roxinho", "gift", "benefits")}
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function quickAction(label, action, iconName) {
+      return `
+        <button class="quick-action" data-action="${action}" aria-label="${label}">
+          <span class="action-circle">${icon(iconName, 24)}</span>
+          <span>${label}</span>
+        </button>
+      `;
+    }
+
+    function shortcut(label, iconName, action) {
+      return `
+        <button class="shortcut" data-action="${action}" aria-label="${label}">
+          ${icon(iconName, 23)}
+          <span>${label}</span>
+        </button>
+      `;
+    }
+
+    function pixHeader(title, subtitle, backRoute = "home") {
+      return `
+        <div class="screen-header">
+          <div class="screen-top-row">
+            <button class="back-button" data-nav="${backRoute}" data-back="true" aria-label="Voltar">${icon("back", 22)}</button>
+            <button class="icon-button light" data-action="pix-help" aria-label="Ajuda Pix">${icon("shield", 21)}</button>
+          </div>
+          <h1 class="screen-title mt-16">${title}</h1>
+          ${subtitle ? `<p class="screen-subtitle">${subtitle}</p>` : ""}
+        </div>
+      `;
+    }
+
+    function pixHomeTemplate() {
+      return `
+        <section class="screen">
+          ${pixHeader("Pix", "Envie, receba e acompanhe suas transações em tempo real.")}
+          <div class="pix-menu">
+            ${pixOption("Enviar", "Use chave Pix, CPF, e-mail ou telefone.", "send", "pix-send", "send")}
+            ${pixOption("Receber", "Crie um QR Code para alguém pagar você.", "qr", "pix-receive", "qr")}
+            ${pixOption("Pix copia e cola", "Cole um código Pix para pagar.", "copy", "pix-copy", "copy")}
+            ${pixOption("Minhas chaves", "Gerencie suas chaves cadastradas.", "key", "pix-keys", "shield")}
+          </div>
+          <div class="info-box">${icon("shield", 20)} <span>Suas transferências usam autenticação em tempo real e comprovante com ID único.</span></div>
+        </section>
+      `;
+    }
+
+    function pixOption(title, subtitle, iconName, action, fallbackIcon) {
+      return `
+        <button class="pix-option" data-action="${action}" aria-label="${title}">
+          <span class="pix-option-icon">${icon(fallbackIcon || iconName, 23)}</span>
+          <span><strong>${title}</strong><span>${subtitle}</span></span>
+          ${icon("chevron", 19)}
+        </button>
+      `;
+    }
+
+    function pixKeyTemplate() {
+      const hasError = state.pix.keyError;
+      return `
+        <section class="screen">
+          ${pixHeader("Para quem você quer enviar?", "Digite uma chave Pix. Aceitamos CPF, e-mail e telefone.", "pixHome")}
+          <div class="field-card">
+            <label class="label" for="pixKey">Chave Pix</label>
+            <input id="pixKey" class="input ${hasError ? "input-error" : ""}" value="${escapeHtml(state.pix.key)}" inputmode="text" autocomplete="off" placeholder="nome@email.com" />
+            <p class="helper">CPF no formato 000.000.000-00, e-mail válido ou telefone com DDD.</p>
+            ${hasError ? `<div class="error-box">${icon("alert", 19)} <span>${hasError}</span></div>` : ""}
+            ${state.pix.keyType ? `<div class="info-box">${icon("checkCircle", 19)} <span>Chave reconhecida como ${state.pix.keyType}. Vamos confirmar os dados antes de enviar.</span></div>` : ""}
+          </div>
+          <div class="button-row">
+            <button class="secondary-button" data-action="fill-pix-sample">${icon("copy", 19)} Usar exemplo</button>
+            <button class="primary-button" data-action="continue-pix-key">${icon("chevron", 19)} Continuar</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function pixAmountTemplate() {
+      const recipient = state.pix.recipient || buildRecipient(state.pix.key);
+      const error = state.pix.amountError;
+      return `
+        <section class="screen">
+          ${pixHeader("Qual valor você quer enviar?", `Para ${recipient.name}, via ${recipient.keyLabel}.`, "pixKey")}
+          <div class="amount-panel">
+            <p class="amount-label">Valor do Pix</p>
+            <div class="amount-display">${formatMoney(state.pix.amountCents)}</div>
+            <p class="available">Saldo disponível: ${formatMoney(state.balanceCents)}</p>
+            ${error ? `<div class="error-box">${icon("alert", 19)} <span>${error}</span></div>` : ""}
+            <button class="ghost-button full mt-12" data-action="use-full-balance">${icon("wallet", 18)} Usar saldo total</button>
+            <div class="keypad" aria-label="Teclado numérico Pix">
+              ${["1","2","3","4","5","6","7","8","9","Limpar","0","backspace"].map(key => keypadKey(key)).join("")}
+            </div>
+          </div>
+          <button class="primary-button mt-20" data-action="continue-pix-amount">${icon("chevron", 19)} Continuar</button>
+        </section>
+      `;
+    }
+
+    function keypadKey(key) {
+      if (key === "backspace") {
+        return `<button class="key-button utility" data-key="backspace" aria-label="Apagar">${icon("back", 22)}</button>`;
+      }
+      if (key === "Limpar") {
+        return `<button class="key-button utility" data-key="clear">Limpar</button>`;
+      }
+      return `<button class="key-button" data-key="${key}">${key}</button>`;
+    }
+
+    function pixConfirmTemplate() {
+      const recipient = state.pix.recipient || buildRecipient(state.pix.key);
+      const date = new Date();
+      return `
+        <section class="screen">
+          ${pixHeader("Confirme o Pix", "Confira os dados antes de enviar. Depois da confirmação, a transferência é concluída.", "pixAmount")}
+          <div class="confirm-card">
+            <div class="confirm-recipient">
+              <div class="recipient-avatar">${initials(recipient.name)}</div>
+              <div>
+                <strong>${recipient.name}</strong>
+                <p class="fine" style="margin-top:4px">${recipient.bank}</p>
+              </div>
+            </div>
+            <div class="detail-row"><span>Valor</span><strong>${formatMoney(state.pix.amountCents)}</strong></div>
+            <div class="detail-row"><span>Chave Pix</span><strong>${escapeHtml(state.pix.key)}</strong></div>
+            <div class="detail-row"><span>Quando</span><strong>Hoje, ${timeFormatter.format(date)}</strong></div>
+            <div class="detail-row"><span>Forma de pagamento</span><strong>Saldo em conta</strong></div>
+          </div>
+          <div class="info-box">${icon("shield", 20)} <span>O Roxinho Bank nunca solicita senha fora do app. Confirme apenas se você reconhece o destinatário.</span></div>
+          <button class="primary-button mt-20" data-action="confirm-pix" ${state.pix.submitting ? "disabled" : ""}>
+            ${state.pix.submitting ? '<span class="spinner"></span> Enviando' : `${icon("check", 20)} Confirmar envio`}
+          </button>
+          <button class="secondary-button mt-12" data-nav="pixAmount" data-back="true">${icon("back", 19)} Alterar valor</button>
+        </section>
+      `;
+    }
+
+    function pixSuccessTemplate() {
+      const receipt = state.pix.receipt;
+      return `
+        <section class="screen">
+          <div class="success-wrap">
+            <div class="success-mark">${icon("check", 62)}</div>
+            <h1 class="success-title">Pix enviado</h1>
+            <p class="success-text">${formatMoney(receipt.amountCents)} enviados para ${receipt.recipient.name}. O saldo e o extrato já foram atualizados.</p>
+            <button class="primary-button" data-action="open-receipt">${icon("receipt", 20)} Comprovante</button>
+            <button class="secondary-button mt-12" data-nav="home">${icon("home", 19)} Voltar ao início</button>
+            <button class="ghost-button full mt-12" data-action="new-pix">${icon("pix", 18)} Fazer outro Pix</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function extractTemplate() {
+      const groups = groupTransactions(filteredTransactions());
+      const hasTransactions = Object.keys(groups).length > 0;
+
+      return `
+        <section class="screen">
+          <div class="screen-header">
+            <h1 class="screen-title">Extrato</h1>
+            <p class="screen-subtitle">Movimentações da sua conta Roxinho Bank.</p>
+            <div class="search-wrap">
+              ${icon("search", 20)}
+              <input id="extractSearch" class="search-input" value="${escapeHtml(state.search)}" placeholder="Buscar por estabelecimento" autocomplete="off" />
+            </div>
+          </div>
+          ${hasTransactions ? Object.entries(groups).map(([label, transactions]) => `
+            <h2 class="group-title">${label}</h2>
+            <div class="transaction-list">
+              ${transactions.map(transactionTemplate).join("")}
+            </div>
+          `).join("") : `
+            <div class="empty-state">
+              ${icon("search", 30)}
+              <p>Nenhuma transação encontrada para essa busca.</p>
+              <button class="ghost-button" data-action="clear-search">Limpar busca</button>
+            </div>
+          `}
+        </section>
+      `;
+    }
+
+    function transactionTemplate(tx) {
+      return `
+        <button class="transaction" data-action="transaction-detail" data-id="${tx.id}" aria-label="Detalhes de ${escapeHtml(tx.title)}">
+          <span class="transaction-icon">${categoryIcon(tx.category)}</span>
+          <span>
+            <h3>${escapeHtml(tx.title)}</h3>
+            <p>${escapeHtml(tx.subtitle)} • ${timeFormatter.format(tx.date)}</p>
+          </span>
+          <strong class="transaction-value ${tx.amountCents > 0 ? "income" : ""}">${formatSigned(tx.amountCents)}</strong>
+        </button>
+      `;
+    }
+
+    function cardTemplate() {
+      const used = Math.round((state.invoiceCents / state.cardLimitCents) * 100);
+      const available = state.cardLimitCents - state.invoiceCents;
+      return `
+        <section class="screen">
+          <div class="screen-header">
+            <h1 class="screen-title">Cartão</h1>
+            <p class="screen-subtitle">Virtual Roxinho Black. Toque no cartão para revelar ou ocultar o número.</p>
+          </div>
+
+          <button class="card-stage full" data-action="toggle-card-number" aria-label="Revelar ou ocultar número do cartão">
+            <div class="virtual-card ${state.cardRevealed ? "revealed" : ""} ${state.cardLocked ? "locked" : ""}">
+              <div class="lock-pill">${icon("lock", 30)} Cartão bloqueado</div>
+              <div class="card-face front">
+                <div class="brand-row">
+                  <div class="brand">${icon("logo", 24)} Roxinho Bank</div>
+                  <div class="chip" aria-hidden="true"></div>
+                </div>
+                <div class="card-number-row">
+                  <div class="card-number">•••• •••• •••• 4821</div>
+                </div>
+                <div class="card-meta-row">
+                  <div>
+                    <div class="card-meta">Nome</div>
+                    <div class="card-holder">MARLON NARDI</div>
+                  </div>
+                  <div>
+                    <div class="card-meta">Validade</div>
+                    <div class="card-holder">09/31</div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-face back">
+                <div class="brand-row">
+                  <div class="brand">${icon("logo", 24)} Roxinho Bank</div>
+                  <span>${icon("shield", 24)}</span>
+                </div>
+                <div class="card-number-row">
+                  <div class="card-number">5356 8204 7719 4821</div>
+                </div>
+                <div class="card-meta-row">
+                  <div>
+                    <div class="card-meta">CVV</div>
+                    <div class="card-holder">714</div>
+                  </div>
+                  <div>
+                    <div class="card-meta">Cartão virtual</div>
+                    <div class="card-holder">Ativo</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </button>
+          <p class="card-help">${state.cardRevealed ? "Número visível por segurança só nesta sessão." : "Número oculto. Toque para revelar com segurança."}</p>
+
+          <button class="toggle-card" data-action="toggle-card-lock" aria-label="${state.cardLocked ? "Desbloquear cartão" : "Bloquear cartão"}">
+            <div>
+              <p class="toggle-title">Bloquear cartão</p>
+              <p class="toggle-copy">${state.cardLocked ? "Compras online e por aproximação estão pausadas." : "Pause novas compras instantaneamente se precisar."}</p>
+            </div>
+            <span class="switch ${state.cardLocked ? "on" : ""}" aria-hidden="true"></span>
+          </button>
+
+          <div class="invoice-panel">
+            <div class="card-topline">
+              <p class="card-title">${icon("receipt", 21)} Fatura atual</p>
+              <strong>${used}%</strong>
+            </div>
+            <p class="invoice-value">${formatMoney(state.invoiceCents)}</p>
+            <div class="progress"><i style="--value: ${used}%"></i></div>
+            <div class="invoice-grid">
+              <div class="metric"><span>Limite total</span><strong>${formatMoney(state.cardLimitCents)}</strong></div>
+              <div class="metric"><span>Disponível</span><strong>${formatMoney(available)}</strong></div>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="secondary-button" data-action="pay-invoice">${icon("barcode", 19)} Pagar</button>
+            <button class="secondary-button" data-action="installments">${icon("calendar", 19)} Parcelar</button>
+          </div>
+          <button class="primary-button mt-12" data-action="limit-settings">${icon("chart", 19)} Ajustar limite</button>
+        </section>
+      `;
+    }
+
+    function bindEvents() {
+      document.querySelectorAll("[data-nav]").forEach(button => {
+        button.addEventListener("click", () => {
+          const route = button.dataset.nav;
+          navigate(route, { back: button.dataset.back === "true" });
+        });
+      });
+
+      document.querySelectorAll("[data-action]").forEach(button => {
+        button.addEventListener("click", event => {
+          const action = button.dataset.action;
+          handleAction(action, button, event);
+        });
+      });
+
+      const keyInput = document.getElementById("pixKey");
+      if (keyInput) {
+        keyInput.addEventListener("input", event => {
+          const value = event.target.value;
+          state.pix.key = maybeMaskCpf(value);
+          state.pix.keyError = "";
+          state.pix.keyType = detectPixKey(state.pix.key).label;
+          event.target.value = state.pix.key;
+          rerender();
+          window.setTimeout(() => document.getElementById("pixKey")?.focus(), 0);
+        });
+        keyInput.focus();
+        keyInput.setSelectionRange(keyInput.value.length, keyInput.value.length);
+      }
+
+      const searchInput = document.getElementById("extractSearch");
+      if (searchInput) {
+        searchInput.addEventListener("input", event => {
+          state.search = event.target.value;
+          rerender();
+          window.setTimeout(() => document.getElementById("extractSearch")?.focus(), 0);
+        });
+      }
+
+      document.querySelectorAll("[data-key]").forEach(button => {
+        button.addEventListener("click", () => handleKeypad(button.dataset.key));
+      });
+    }
+
+    function handleAction(action, button, event) {
+      const soon = {
+        notifications: "Você está em dia. Nenhuma notificação crítica agora.",
+        pay: "Leitor de código de barras em breve nesta demo.",
+        transfer: "Transferência TED em breve. Use Pix para testar o fluxo completo.",
+        recharge: "Recarga de celular em breve nesta demo.",
+        invest: "Carteira de investimentos em breve.",
+        vault: "Cofrinhos para guardar dinheiro em breve.",
+        insurance: "Seguro celular em breve.",
+        benefits: "Benefícios Roxinho em breve.",
+        "pix-help": "Pix protegido com validação de chave, limite por saldo e comprovante.",
+        "pix-receive": "QR Code Pix em breve nesta demo.",
+        "pix-copy": "Pagamento Pix copia e cola em breve nesta demo.",
+        "pix-keys": "Gestão de chaves Pix em breve nesta demo.",
+        "pay-invoice": "Pagamento de fatura em breve nesta demo.",
+        installments: "Parcelamento de fatura em breve nesta demo.",
+        "limit-settings": "Ajuste de limite em breve nesta demo."
+      };
+
+      if (soon[action]) {
+        showToast(soon[action]);
+        return;
+      }
+
+      if (action === "toggle-balance") {
+        state.balanceVisible = !state.balanceVisible;
+        rerender(false);
+        return;
+      }
+
+      if (action === "pix") {
+        resetPix(false);
+        navigate("pixHome");
+        return;
+      }
+
+      if (action === "pix-send") {
+        navigate("pixKey");
+        return;
+      }
+
+      if (action === "fill-pix-sample") {
+        state.pix.key = "marina.costa@email.com";
+        state.pix.keyError = "";
+        state.pix.keyType = "e-mail";
+        showToast("Chave de exemplo preenchida.", "success");
+        rerender(false);
+        return;
+      }
+
+      if (action === "continue-pix-key") {
+        continuePixKey();
+        return;
+      }
+
+      if (action === "use-full-balance") {
+        state.pix.amountCents = state.balanceCents;
+        state.pix.amountError = "";
+        rerender(false);
+        return;
+      }
+
+      if (action === "continue-pix-amount") {
+        continuePixAmount();
+        return;
+      }
+
+      if (action === "confirm-pix") {
+        confirmPix();
+        return;
+      }
+
+      if (action === "open-receipt") {
+        openReceipt();
+        return;
+      }
+
+      if (action === "new-pix") {
+        resetPix();
+        navigate("pixKey");
+        return;
+      }
+
+      if (action === "clear-search") {
+        state.search = "";
+        rerender(false);
+        return;
+      }
+
+      if (action === "transaction-detail") {
+        const tx = state.transactions.find(item => item.id === button.dataset.id);
+        if (tx) openTransaction(tx);
+        return;
+      }
+
+      if (action === "toggle-card-number") {
+        state.cardRevealed = !state.cardRevealed;
+        rerender(false);
+        return;
+      }
+
+      if (action === "toggle-card-lock") {
+        state.cardLocked = !state.cardLocked;
+        showToast(state.cardLocked ? "Cartão bloqueado instantaneamente." : "Cartão desbloqueado e pronto para uso.", "success");
+        rerender(false);
+      }
+    }
+
+    function handleKeypad(key) {
+      state.pix.amountError = "";
+      if (key === "backspace") {
+        state.pix.amountCents = Math.floor(state.pix.amountCents / 10);
+      } else if (key === "clear") {
+        state.pix.amountCents = 0;
+      } else if (/^\d$/.test(key)) {
+        const next = Number(`${state.pix.amountCents}${key}`);
+        if (next <= 99999999) {
+          state.pix.amountCents = next;
+        } else {
+          showToast("Valor máximo por Pix nesta demo é R$ 999.999,99.");
+        }
+      }
+      rerender(false);
+    }
+
+    function continuePixKey() {
+      const detected = detectPixKey(state.pix.key);
+      if (!detected.valid) {
+        state.pix.keyError = "Chave Pix inválida. Use CPF com máscara, e-mail válido ou telefone com DDD.";
+        state.pix.keyType = "";
+        showToast("Revise a chave Pix antes de continuar.", "error");
+        rerender(false);
+        return;
+      }
+
+      state.pix.keyType = detected.label;
+      state.pix.recipient = buildRecipient(state.pix.key, detected.label);
+      navigate("pixAmount");
+    }
+
+    function continuePixAmount() {
+      if (state.pix.amountCents <= 0) {
+        state.pix.amountError = "Digite um valor maior que R$ 0,00 para enviar.";
+        showToast("Informe o valor do Pix.", "error");
+        rerender(false);
+        return;
+      }
+
+      if (state.pix.amountCents > state.balanceCents) {
+        state.pix.amountError = `Você tem ${formatMoney(state.balanceCents)} disponíveis. Reduza o valor ou use o saldo total.`;
+        showToast("Saldo insuficiente para concluir este Pix.", "error");
+        rerender(false);
+        return;
+      }
+
+      state.pix.amountError = "";
+      navigate("pixConfirm");
+    }
+
+    function confirmPix() {
+      if (state.pix.submitting) return;
+      state.pix.submitting = true;
+      rerender(false);
+
+      window.setTimeout(() => {
+        const recipient = state.pix.recipient || buildRecipient(state.pix.key);
+        const date = new Date();
+        const id = nowId();
+        const tx = {
+          id,
+          title: `Pix enviado para ${recipient.name}`,
+          subtitle: `Chave ${recipient.keyLabel}`,
+          category: "pix-out",
+          amountCents: -state.pix.amountCents,
+          date,
+          merchant: recipient.name
+        };
+
+        state.balanceCents -= state.pix.amountCents;
+        state.transactions.unshift(tx);
+        state.pix.receipt = {
+          id,
+          recipient,
+          key: state.pix.key,
+          amountCents: state.pix.amountCents,
+          date
+        };
+        state.pix.submitting = false;
+        showToast("Pix concluído com sucesso.", "success");
+        navigate("pixSuccess", { quick: true });
+      }, 640);
+    }
+
+    function resetPix(clearKey = true) {
+      state.pix = {
+        key: clearKey ? "" : state.pix.key,
+        keyError: "",
+        keyType: clearKey ? "" : state.pix.keyType,
+        recipient: clearKey ? null : state.pix.recipient,
+        amountCents: 0,
+        amountError: "",
+        submitting: false,
+        receipt: null
+      };
+    }
+
+    function openReceipt() {
+      const receipt = state.pix.receipt;
+      if (!receipt) {
+        showToast("Nenhum comprovante disponível nesta sessão.", "error");
+        return;
+      }
+
+      openModal(`
+        <div class="receipt-top">
+          <div>
+            <h2 class="receipt-title">Comprovante Pix</h2>
+            <p class="fine">Transferência concluída no Roxinho Bank</p>
+          </div>
+          <div class="receipt-badge">${icon("check", 24)}</div>
+        </div>
+        <div class="detail-row"><span>Valor</span><strong>${formatMoney(receipt.amountCents)}</strong></div>
+        <div class="detail-row"><span>Destinatário</span><strong>${receipt.recipient.name}</strong></div>
+        <div class="detail-row"><span>Instituição</span><strong>${receipt.recipient.bank}</strong></div>
+        <div class="detail-row"><span>Chave</span><strong>${escapeHtml(receipt.key)}</strong></div>
+        <div class="detail-row"><span>ID da transação</span><strong>${receipt.id}</strong></div>
+        <div class="detail-row"><span>Data e horário</span><strong>${fullDateFormatter.format(receipt.date)} às ${timeFormatter.format(receipt.date)}</strong></div>
+        <button class="primary-button mt-20" data-close-modal>${icon("check", 19)} Fechar</button>
+      `);
+    }
+
+    function openTransaction(tx) {
+      openModal(`
+        <div class="receipt-top">
+          <div>
+            <h2 class="receipt-title">${escapeHtml(tx.title)}</h2>
+            <p class="fine">${escapeHtml(tx.subtitle)}</p>
+          </div>
+          <div class="receipt-badge" style="background:#f2e4fb;color:var(--purple)">${categoryIcon(tx.category)}</div>
+        </div>
+        <div class="detail-row"><span>Valor</span><strong>${formatSigned(tx.amountCents)}</strong></div>
+        <div class="detail-row"><span>Data</span><strong>${fullDateFormatter.format(tx.date)} às ${timeFormatter.format(tx.date)}</strong></div>
+        <div class="detail-row"><span>ID</span><strong>${tx.id}</strong></div>
+        <div class="detail-row"><span>Status</span><strong>Concluída</strong></div>
+        <button class="primary-button mt-20" data-close-modal>${icon("check", 19)} Entendi</button>
+      `);
+    }
+
+    function openModal(content) {
+      const root = document.getElementById("modalRoot");
+      root.innerHTML = `
+        <div class="modal-backdrop" data-close-modal>
+          <section class="modal" role="dialog" aria-modal="true" aria-label="Detalhes" onclick="event.stopPropagation()">
+            ${content}
+          </section>
+        </div>
+      `;
+      root.querySelectorAll("[data-close-modal]").forEach(node => {
+        node.addEventListener("click", closeModal);
+      });
+    }
+
+    function closeModal() {
+      document.getElementById("modalRoot").innerHTML = "";
+    }
+
+    function filteredTransactions() {
+      const term = normalizeText(state.search.trim());
+      if (!term) return state.transactions;
+      return state.transactions.filter(tx => {
+        return normalizeText(`${tx.title} ${tx.subtitle} ${tx.merchant}`).includes(term);
+      });
+    }
+
+    function groupTransactions(transactions) {
+      return transactions.reduce((groups, tx) => {
+        const label = groupLabel(tx.date);
+        if (!groups[label]) groups[label] = [];
+        groups[label].push(tx);
+        return groups;
+      }, {});
+    }
+
+    function groupLabel(date) {
+      const today = startOfDay(new Date());
+      const target = startOfDay(date);
+      const diff = Math.round((today - target) / 86400000);
+      if (diff === 0) return "Hoje";
+      if (diff === 1) return "Ontem";
+      if (date.getFullYear() === today.getFullYear()) return shortDateFormatter.format(date);
+      return fullDateFormatter.format(date);
+    }
+
+    function startOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function categoryIcon(category) {
+      const map = {
+        "pix-in": "pix",
+        "pix-out": "pix",
+        pix: "pix",
+        food: "fork",
+        transport: "car",
+        shopping: "bag",
+        health: "heart",
+        subscription: "music",
+        market: "bag",
+        leisure: "gift",
+        salary: "wallet",
+        bill: "bolt",
+        transfer: "send"
+      };
+      return icon(map[category] || "receipt", 20);
+    }
+
+    function detectPixKey(key) {
+      const value = key.trim();
+      if (!value) return { valid: false, label: "" };
+      if (/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(value) && isValidCpf(value)) {
+        return { valid: true, label: "CPF" };
+      }
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+        return { valid: true, label: "e-mail" };
+      }
+      if (/^(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4})-?\d{4}$/.test(value)) {
+        return { valid: true, label: "telefone" };
+      }
+      return { valid: false, label: "" };
+    }
+
+    function maybeMaskCpf(value) {
+      const trimmed = value.trim();
+      const digits = trimmed.replace(/\D/g, "");
+      const hasCpfPunctuation = /[.-]/.test(trimmed);
+      const looksLikeCpfInput = /^[\d.\-]*$/.test(trimmed) && digits.length <= 11;
+      const masked = digits
+        .replace(/^(\d{3})(\d)/, "$1.$2")
+        .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2}).*/, "$1.$2.$3-$4");
+
+      if (looksLikeCpfInput && (hasCpfPunctuation || (digits.length === 11 && isValidCpf(masked)))) {
+        return masked;
+      }
+      return value;
+    }
+
+    function isValidCpf(cpf) {
+      const digits = cpf.replace(/\D/g, "");
+      if (digits.length !== 11 || /^(\d)\1+$/.test(digits)) return false;
+
+      let sum = 0;
+      for (let i = 0; i < 9; i++) sum += Number(digits[i]) * (10 - i);
+      let first = (sum * 10) % 11;
+      if (first === 10) first = 0;
+      if (first !== Number(digits[9])) return false;
+
+      sum = 0;
+      for (let i = 0; i < 10; i++) sum += Number(digits[i]) * (11 - i);
+      let second = (sum * 10) % 11;
+      if (second === 10) second = 0;
+      return second === Number(digits[10]);
+    }
+
+    function buildRecipient(key, type = "") {
+      const clean = normalizeText(key);
+      if (clean.includes("marina") || clean.includes("email")) {
+        return { name: "Marina Costa", bank: "Banco Intermediário S.A.", keyLabel: type || "e-mail" };
+      }
+      if (clean.includes("joao") || clean.includes("pedro")) {
+        return { name: "João Pedro Lima", bank: "Roxinho Bank", keyLabel: type || "chave Pix" };
+      }
+      if ((type || "").toLowerCase() === "cpf") {
+        return { name: "Camila Fernandes", bank: "Nubank Pagamentos S.A.", keyLabel: "CPF" };
+      }
+      if ((type || "").toLowerCase() === "telefone") {
+        return { name: "Rafael Moreira", bank: "PicPay Serviços S.A.", keyLabel: "telefone" };
+      }
+      return { name: "Marina Costa", bank: "Banco Intermediário S.A.", keyLabel: type || "chave Pix" };
+    }
+
+    function initials(name) {
+      return name.split(" ").slice(0, 2).map(part => part[0]).join("").toUpperCase();
+    }
+
+    function normalizeText(text) {
+      return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    seedTransactions();
+    updateClock();
+    window.setInterval(updateClock, 10000);
+    render();
+  </script>
+</body>
+</html>
