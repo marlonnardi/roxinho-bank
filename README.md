@@ -19,3 +19,5 @@ Abra `index.html` diretamente no navegador.
 ## Comparativos
 
 ![Captura do projeto](comparativos/Captura%20de%20tela%202026-07-03%20122622.png)
+
+![Captura mobile do app](comparativos/Captura%20de%20tela%202026-07-03%20123635.png)
